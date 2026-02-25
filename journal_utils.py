@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -6,7 +7,8 @@ from typing import Optional
 
 
 JSON_DATA_FILE = Path(__file__).parent / "journal_entries.json"
-DB_FILE = Path(__file__).parent / "ai_journal.db"
+_db_default = Path(__file__).parent / "ai_journal.db"
+DB_FILE = Path(os.getenv("DB_PATH", str(_db_default)))
 
 
 def init_db() -> None:

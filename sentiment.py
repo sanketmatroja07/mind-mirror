@@ -8,7 +8,10 @@ try:
 except ImportError:  # pragma: no cover
     requests = None
 
-from textblob import TextBlob
+try:
+    from textblob import TextBlob
+except Exception:
+    TextBlob = None
 
 
 HF_MODEL_NAME = os.getenv(
@@ -114,9 +117,14 @@ def _classify_with_hf(text: str) -> Optional[dict]:
 
 
 def _classify_with_textblob(text: str) -> dict:
-    blob = TextBlob(text)
-    polarity = round(blob.sentiment.polarity, 3)
-    subjectivity = round(blob.sentiment.subjectivity, 3)
+    if TextBlob is None:
+        return _neutral_response(provider="textblob", model="textblob-unavailable")
+    try:
+        blob = TextBlob(text)
+        polarity = round(blob.sentiment.polarity, 3)
+        subjectivity = round(blob.sentiment.subjectivity, 3)
+    except Exception:
+        return _neutral_response(provider="textblob", model="textblob-error")
 
     if polarity > 0.1:
         label = "Positive"

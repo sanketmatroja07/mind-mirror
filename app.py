@@ -38,7 +38,9 @@ from journal_utils import (
 from sentiment import classify_sentiment
 
 
-app = Flask(__name__)
+_root = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, template_folder=os.path.join(_root, "templates"),
+            static_folder=os.path.join(_root, "static"))
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-change-in-production")
 init_db()
 

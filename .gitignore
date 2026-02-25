@@ -6,3 +6,4 @@ venv/
 journal_entries.json
 ai_journal.db
 .env
+.vercel
