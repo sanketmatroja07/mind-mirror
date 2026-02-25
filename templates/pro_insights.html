@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero pro-hero">
+  <div class="hero-copy">
+    <p class="kicker-hero">Pro Insights</p>
+    <h1>Your emotional intelligence dashboard</h1>
+    <p>
+      Weekly reports, trigger detection, volatility mapping, forecasting, and deep exports.
+    </p>
+  </div>
+  <div class="hero-focus-card pro-stats">
+    <p class="focus-title">Pro Metrics</p>
+    <p><strong>{{ pro_data.insights_generated }}</strong> insights generated</p>
+    <p><strong>{{ pro_data.trigger_count }}</strong> triggers identified</p>
+    <p><strong>{{ pro_data.stability_score }}</strong>/100 stability score</p>
+  </div>
+</section>
+
+{% if not user.is_pro %}
+  <section class="card pro-lock-wrap">
+    <div class="pro-locked">
+      <div class="pro-blur-content">
+        <div class="pro-grid">
+          <article class="card"><h3>Weekly Emotional Report</h3><p class="muted">AI summary with confidence, trend chart, and report download.</p></article>
+          <article class="card"><h3>Trigger Detection Engine</h3><p class="muted">Impact severity across work, fatigue, social, and health triggers.</p></article>
+          <article class="card"><h3>Volatility Map</h3><p class="muted">Calendar-style emotional stability map.</p></article>
+          <article class="card"><h3>Pattern Forecasting</h3><p class="muted">Early warning insight for high-risk mood windows.</p></article>
+        </div>
+      </div>
+      <div class="pro-overlay">
+        <h2>Unlock Deeper Emotional Insights</h2>
+        <p>Weekly reports, trigger detection, forecasting, and deep analytics.</p>
+        <form action="{{ url_for('upgrade_pro') }}" method="post">
+          <button type="submit">Upgrade to Pro</button>
+        </form>
+      </div>
+    </div>
+  </section>
+{% else %}
+  <section class="pro-grid">
+    <article class="card pro-module">
+      <div class="card-head">
+        <h2>Weekly Emotional Report</h2>
+        <a class="button ghost" href="{{ url_for('export_csv') }}">Export</a>
+      </div>
+      <p>{{ pro_data.weekly_summary }}</p>
+      <p class="muted">Insight Confidence: <strong>{{ pro_data.confidence }}%</strong></p>
+      <div class="chart-wrap">
+        <svg id="proTrendChart" viewBox="0 0 700 200" preserveAspectRatio="none"></svg>
+      </div>
+    </article>
+
+    <article class="card pro-module">
+      <h2>Trigger Detection</h2>
+      <div class="trigger-list">
+        {% for name, data in pro_data.trigger_scores.items() %}
+          <div class="trigger-row">
+            <span>{{ name }}</span>
+            <span class="pill pill-{{ 'negative' if data.severity == 'High' else 'neutral' if data.severity == 'Medium' else 'positive' }}">
+              {{ data.severity }}
+            </span>
+            <div class="impact-bar">
+              <div class="impact-fill" style="width: {{ [data.negative * 22, 100]|min }}%"></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <p class="muted">Top negative trigger: <strong>{{ pro_data.top_negative_trigger }}</strong></p>
+    </article>
+
+    <article class="card pro-module">
+      <h2>Emotional Volatility Map</h2>
+      <p class="muted">Stability score: <strong>{{ pro_data.stability_score }}/100</strong></p>
+      <div class="volatility-map">
+        {% for row in pro_data.volatility_map %}
+          <div class="vol-cell {{ row.status }}">
+            <span>{{ row.day }}</span>
+            <strong>{{ row.score }}</strong>
+          </div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="card pro-module">
+      <h2>Pattern Forecasting</h2>
+      <p>{{ pro_data.forecast }}</p>
+      <div class="forecast-chip">Next high-risk period: Mid-week</div>
+    </article>
+
+    <article class="card pro-module">
+      <div class="card-head">
+        <h2>Deep Analytics Export</h2>
+        <a class="button" href="{{ url_for('export_csv') }}">Export CSV</a>
+      </div>
+      <ul class="insight-list">
+        <li>Full sentiment history</li>
+        <li>Trigger frequency breakdown</li>
+        <li>Stability index timeline</li>
+        <li>Entry-level emotional analysis</li>
+      </ul>
+    </article>
+  </section>
+{% endif %}
+
+<script>
+  window.__proTrendPoints = {{ pro_data.trend_points|tojson }};
+</script>
+{% endblock %}

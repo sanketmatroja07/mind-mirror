@@ -1,0 +1,16 @@
+<svg width="360" height="88" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="8" y1="8" x2="72" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C57F3"/>
+      <stop offset="1" stop-color="#5D3BC4"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="4" y="4" width="76" height="76" rx="20" fill="url(#g1)"/>
+  <path d="M22 58.5L34.5 30H49.5L62 58.5H52L48.5 50.5H35.5L32 58.5H22ZM38.8 42.8H45.2L42 35.1L38.8 42.8Z" fill="white"/>
+  <path d="M18 67C27 58 32 54 40.5 54C49.3 54 53.5 58.2 62 67" stroke="#4FD1C7" stroke-width="4.2" stroke-linecap="round"/>
+
+  <text x="96" y="52" fill="#1F2937" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="43" font-weight="800" letter-spacing="-0.6">
+    AI Journal
+  </text>
+</svg>

@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+venv/
+journal_entries.json
+ai_journal.db
+.env

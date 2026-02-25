@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="auth-shell">
+  <article class="card auth-card">
+    <p class="auth-brand">Mind Mirror</p>
+    <p class="auth-tagline">Check in. Reflect. Grow.</p>
+    <h1>Welcome back</h1>
+    <p class="muted">Your safe space for daily reflection.</p>
+    <form action="{{ url_for('login') }}" method="post" class="auth-form">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+
+      <button type="submit">Sign In</button>
+    </form>
+    <p class="muted auth-switch">
+      New to Mind Mirror?
+      <a href="{{ url_for('register') }}">Create an account</a>
+    </p>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="greeting-bar" id="dashboard">
+  <h1>{{ greeting }}, {{ user.name }}</h1>
+  <div class="mood-badge">
+    Today's mood: {{ product_signals.overall_mood }}
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-capsule">
+    <span class="stat-value">{{ stats.streak_days }}</span>
+    <span class="stat-label">Day Streak</span>
+  </div>
+  <div class="stat-capsule">
+    <span class="stat-value">{{ stats.total_entries }}</span>
+    <span class="stat-label">Entries</span>
+  </div>
+  <div class="stat-capsule">
+    <span class="stat-value">{{ product_signals.stability }}</span>
+    <span class="stat-label">Stability</span>
+  </div>
+  <div class="stat-capsule">
+    <span class="stat-value">{{ product_signals.consistency }}</span>
+    <span class="stat-label">Consistency</span>
+  </div>
+</div>
+
+<article id="new-entry" class="card composer">
+  <h2 class="composer-label">How are you feeling today?</h2>
+  <p class="composer-sub">Take a moment to reflect. No format needed — just write naturally.</p>
+  <form id="entryForm" action="{{ url_for('create_entry') }}" method="post">
+    <textarea id="entryText" name="entry_text" rows="8" placeholder="What's on your mind today? How did your day go?" required></textarea>
+    <div class="composer-tools">
+      <div class="chip-row">
+        <button class="quick-chip" type="button" data-prompt="Today I felt grateful because ">Grateful</button>
+        <button class="quick-chip" type="button" data-prompt="I felt stressed today because ">Stressed</button>
+        <button class="quick-chip" type="button" data-prompt="I feel proud today because ">Proud</button>
+        <button class="quick-chip" type="button" data-prompt="I want to improve tomorrow by ">Growth</button>
+        <button class="quick-chip" type="button" data-prompt="Something that made me happy today: ">Happy</button>
+      </div>
+      <div class="composer-meta">
+        <span id="moodEstimate" class="mood-estimate">Estimated mood: Neutral</span>
+        <span id="draftStatus" class="muted">Draft not saved yet</span>
+        <span id="charCount" class="muted">0 characters</span>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button id="clearDraftBtn" class="clear-link" type="button">Clear draft</button>
+      <button type="submit">Save Reflection</button>
+    </div>
+  </form>
+</article>
+
+<div class="content-grid">
+  <article class="card">
+    <div class="card-head">
+      <h2>Mood Trends</h2>
+      <span class="chip">{{ stats.total_entries }} entries</span>
+    </div>
+    <div class="chart-wrap">
+      <svg id="trendChart" viewBox="0 0 700 200" preserveAspectRatio="none"></svg>
+      <p class="caption">Emotional polarity over your recent reflections.</p>
+    </div>
+    <div class="chart-wrap">
+      <svg id="distributionChart" viewBox="0 0 700 200" preserveAspectRatio="none"></svg>
+      <p class="caption">Distribution of positive, neutral, and negative days.</p>
+    </div>
+  </article>
+
+  <div>
+    <article class="card">
+      <div class="ai-summary-box">
+        <h3>Weekly Insight</h3>
+        <p>{{ product_signals.weekly_summary }}</p>
+        <div class="confidence-row">
+          <span>Confidence</span>
+          <strong>{{ (70 + (stats.total_entries if stats.total_entries < 20 else 20)) }}%</strong>
+        </div>
+      </div>
+    </article>
+
+    <article id="insights" class="card" style="margin-top: 16px;">
+      <h2>What We're Noticing</h2>
+      <ul class="insight-list">
+        {% for insight in insights %}
+          <li>{{ insight }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+  </div>
+</div>
+
+<section id="timeline" class="card timeline">
+  <div class="card-head">
+    <h2>Your Reflections</h2>
+    <div class="timeline-tools">
+      <input id="entrySearch" type="search" placeholder="Search entries..." style="max-width:220px">
+      <select id="sentimentFilter" style="max-width:180px">
+        <option value="All">All Moods</option>
+        <option value="Positive">Positive</option>
+        <option value="Neutral">Neutral</option>
+        <option value="Negative">Negative</option>
+      </select>
+    </div>
+  </div>
+  {% if entries %}
+    <div id="entries" class="entries">
+      {% for e in entries %}
+      <article class="entry" data-text="{{ e.text|lower }}" data-sentiment="{{ e.sentiment.label }}">
+        <div class="entry-head">
+          <span class="pill pill-{{ e.sentiment.label|lower }}">{{ e.sentiment.label }}</span>
+          <span class="date">{{ e.created_at }}</span>
+        </div>
+        <p>{{ e.text }}</p>
+        <div class="entry-actions">
+          <button class="details-toggle" type="button" onclick="this.closest('.entry').querySelector('.entry-meta').classList.toggle('is-open'); this.textContent = this.textContent === 'Show details' ? 'Hide details' : 'Show details'">Show details</button>
+          <form action="{{ url_for('remove_entry', entry_id=e.id) }}" method="post" class="inline-form">
+            <button
+              class="delete-icon js-delete-trigger"
+              type="button"
+              data-delete-id="{{ e.id }}"
+              data-delete-preview="{{ e.text|truncate(120) }}"
+              title="Delete entry"
+            >&#x2715;</button>
+          </form>
+        </div>
+        <div class="entry-meta">
+          <span>Polarity: {{ e.sentiment.polarity }}</span>
+          <span>Subjectivity: {{ e.sentiment.subjectivity }}</span>
+          <span>Confidence: {{ e.sentiment.confidence }}</span>
+          <span>Engine: {{ e.sentiment.provider|default('textblob')|title }}</span>
+          <span>Model: {{ e.sentiment.model|default('textblob-default') }}</span>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <p id="emptyFilterState" class="muted hidden">No entries match your current filter.</p>
+  {% else %}
+    <div class="empty-state">
+      <h3>Your reflection timeline is empty</h3>
+      <p class="muted">Write your first entry above to see your emotional patterns.</p>
+      <a class="button" href="#new-entry">Write First Reflection</a>
+    </div>
+  {% endif %}
+</section>
+
+<div id="deleteModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="modal-card">
+    <h3 id="deleteModalTitle">Delete this reflection?</h3>
+    <p class="muted">This action cannot be undone.</p>
+    <p id="deletePreview" class="modal-preview"></p>
+    <div class="modal-actions">
+      <button id="deleteCancelBtn" class="ghost" type="button">Cancel</button>
+      <button id="deleteConfirmBtn" class="danger-solid" type="button">Delete</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

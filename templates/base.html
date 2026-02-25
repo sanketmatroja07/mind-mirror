@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mind Mirror</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='brand/favicon-16.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='brand/favicon-32.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='brand/apple-touch-icon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body data-theme="light" data-user-id="{{ user.id if user else 'guest' }}">
+  <header class="topbar shell">
+    <a href="{{ url_for('home') if session.get('user_id') else url_for('login') }}" class="brand-link" aria-label="Mind Mirror Home">
+      <span class="brand-wordmark">Mind Mirror</span>
+    </a>
+    {% if session.get('user_id') %}
+      <nav class="topnav">
+        <a href="{{ url_for('home') }}#dashboard">Dashboard</a>
+        <a href="{{ url_for('home') }}#insights">Insights</a>
+        <a href="{{ url_for('home') }}#timeline">Timeline</a>
+      </nav>
+      <div class="top-actions">
+        {% if user %}
+          <span class="user-chip">{{ user.name }}</span>
+        {% endif %}
+        <button id="themeToggle" class="ghost icon-btn" type="button" aria-label="Toggle theme">&#9790;</button>
+        <form method="post" action="{{ url_for('logout') }}">
+          <button class="ghost" type="submit">Logout</button>
+        </form>
+      </div>
+    {% else %}
+      <nav class="topnav">
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}">Sign Up</a>
+      </nav>
+      <div class="top-actions">
+        <button id="themeToggle" class="ghost icon-btn" type="button" aria-label="Toggle theme">&#9790;</button>
+      </div>
+    {% endif %}
+  </header>
+  <main class="shell main-shell">
+    {% block content %}{% endblock %}
+  </main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div id="toastStack" class="toast-stack">
+        {% for category, message in messages %}
+          <div class="toast toast-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
