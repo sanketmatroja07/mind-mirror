@@ -2,3 +2,4 @@ Flask
 textblob
 requests
 python-dotenv
+gunicorn

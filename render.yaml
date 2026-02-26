@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: mind-mirror
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python -m textblob.download_corpora
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: SENTIMENT_PROVIDER
+        value: hf
+      - key: HF_API_TOKEN
+        sync: false
+      - key: DB_PATH
+        value: /data/ai_journal.db
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+    disk:
+      name: mind-mirror-data
+      mountPath: /data
+      sizeGB: 1
